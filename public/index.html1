@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="#" />
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+  <title>Bot Analyzer Express</title>
+</head>
+
+<body>
+  <div id="plot"></div>
+
+  <script>
+    function plot(openTime, open, high, low, close, volume, bBands, prices, pricesColor ) {
+      var trace1 = {
+        x: openTime,
+        close: close,
+        high: high,
+        low: low,
+        open: open,
+        increasing: {line: {color: 'green'}}, 
+        decreasing: {line: {color: 'red'}},
+        type: 'candlestick',
+        xaxis: 'x',
+        yaxis: 'y',
+        name: 'candles'
+      };
+
+      var trace2 = {
+        x: openTime,
+        y: prices,
+        mode: 'markers',
+        type: 'scatter',
+        marker: { color: pricesColor, size: 10 },
+        name: 'sell/buy'
+      };
+
+      var trace3 = {
+        x: openTime,
+        y: bBands[0],
+        line: { color: 'green', width: 1},
+        name: 'lower BB'
+      }
+
+      var trace4 = {
+        x: openTime,
+        y: bBands[1],
+        line: { color: 'grey', width: 1},
+        name: 'middle BB'
+      }
+      var trace5 = {
+        x: openTime,
+        y: bBands[2],
+        line: { color: 'red', width: 1},
+        name: 'upper BB'
+      }
+
+
+      var data = [trace1, trace2, trace3, trace4, trace5];
+
+      var layout = {
+        //dragmode: 'zoom',
+        height: 600,
+        margin: { r: 10, l: 25, b: 40, l: 60 },
+        title: 'modified double7 bot',
+        showlegend: false,
+        
+        xaxis: { 
+          rangeslider: {
+            visible: false
+          },
+          type: 'date'
+        },
+
+        yaxis: {
+         //range: [41500, 45000],
+        }
+      };
+
+      Plotly.newPlot('plot', data, layout);
+    }
+  </script>
+
+  <script>
+setInterval(() => {
+    fetch('./data')
+      .then(response => response.json())
+      .then(json => {
+        plot(json.openTime, json.open, json.high, json.low, json.close, json.volume, json.bBands, json.prices, json.pricesColor);
+        // console.log(json.openTime, json.open, json.high, json.low, json.close, json.volume, json.bBands, json.prices);
+        console.log(json.prices);
+      });}, 5000);
+  </script>
+</body>
